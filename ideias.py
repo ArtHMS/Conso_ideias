@@ -15,21 +15,23 @@ fuso_horario_sp = pytz.timezone('America/Sao_Paulo')
 # Autentica e retorna o cliente gspread. Usa o cache para não reconectar a cada ação.
 @st.cache_resource
 def get_gspread_client():
-    # Isso lê os seus secrets e cria o cliente autenticado em um passo só
-    client = gspread.service_account_from_dict(st.secrets["gcp_service_account"])
+    # ### MUDANÇA CRUCIAL AQUI ###
+    # Convertendo o objeto de secrets do Streamlit para um dicionário Python puro.
+    creds_dict = dict(st.secrets["gcp_service_account"])
+    client = gspread.service_account_from_dict(creds_dict)
     return client
 
 
 # O cache de dados garante que não vamos buscar a planilha repetidamente.
-@st.cache_data(ttl=600)  # Atualiza a cada 10 minutos
+@st.cache_data(ttl=300)  # Atualiza a cada 5 minutos
 def get_worksheet():
     client = get_gspread_client()
 
-    # !!! IMPORTANTE: Substitua a URL abaixo pela URL da sua planilha
+    # !!! IMPORTANTE: Confirme que esta é a URL correta da sua planilha
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/1Bz5wBtRSSEz9Hj5TiACOw5V_Zztg2CS_BgrdRPpGt9c/edit?usp=sharing"
     spreadsheet = client.open_by_url(spreadsheet_url)
 
-    # !!! IMPORTANTE: Substitua "Ideias" pelo nome exato da sua aba/página na planilha
+    # !!! IMPORTANTE: Confirme que este é o nome exato da sua aba/página
     worksheet = spreadsheet.worksheet("Ideias")
     return worksheet
 
@@ -41,11 +43,16 @@ worksheet = get_worksheet()
 # --- FUNÇÕES PARA MANIPULAR DADOS NA PLANILHA ---
 
 def carregar_dados():
-    data = worksheet.get_all_records()
-    df = pd.DataFrame(data)
-    if df.empty:
-        df = pd.DataFrame(columns=["Nome", "Área", "Título", "Descrição", "Impacto", "Data de Envio"])
-    return df
+    # Envolve a chamada de rede em um bloco try-except para melhor feedback de erro
+    try:
+        data = worksheet.get_all_records()
+        df = pd.DataFrame(data)
+        if df.empty:
+            df = pd.DataFrame(columns=["Nome", "Área", "Título", "Descrição", "Impacto", "Data de Envio"])
+        return df
+    except gspread.exceptions.APIError as e:
+        st.error(f"Erro ao acessar a planilha: Verifique as permissões e a URL. Detalhes: {e}")
+        return pd.DataFrame()  # Retorna um dataframe vazio em caso de erro
 
 
 def salvar_ideia(nova_ideia):
@@ -68,7 +75,7 @@ def editar_ideia(indice_df, dados_editados):
     st.cache_data.clear()
 
 
-# --- INTERFACE DO STREAMLIT (sem alterações daqui para baixo) ---
+# --- INTERFACE DO STREAMLIT ---
 
 st.title("💡 Sistema de Ideias dos Operadores")
 st.write("Preencha o formulário abaixo para registrar sua ideia!")
