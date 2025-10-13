@@ -23,6 +23,8 @@ def get_gspread_client():
 @st.cache_data
 def get_worksheet(ttl=600):
     client = get_gspread_client()
+    spreadsheet_url = "https://docs.google.com/spreadsheets/d/1Bz5wBtRSSEz9Hj5TiACOw5V_Zztg2CS_BgrdRPpGt9c/edit?gid=0#gid=0"
+    spreadsheet = client.open_by_url(spreadsheet_url)
     spreadsheet = client.open("ideias_Teste")
     worksheet = spreadsheet.worksheet("Ideias")
     return worksheet
