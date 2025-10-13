@@ -15,11 +15,8 @@ fuso_horario_sp = pytz.timezone('America/Sao_Paulo')
 # Autentica e retorna o cliente gspread. Usa o cache para não reconectar a cada ação.
 @st.cache_resource
 def get_gspread_client():
-    creds = Credentials.from_service_account_info(
-        st.secrets["gcp_service_account"],
-        scopes=["https://www.googleapis.com/auth/spreadsheets"],
-    )
-    client = gspread.authorize(creds)
+    # Isso lê os seus secrets e cria o cliente autenticado em um passo só
+    client = gspread.service_account_from_dict(st.secrets["gcp_service_account"])
     return client
 
 
