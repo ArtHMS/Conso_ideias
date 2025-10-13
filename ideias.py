@@ -21,13 +21,13 @@ def get_gspread_client():
     return client
 
 @st.cache_data
-def get_worksheet(client):
+def get_worksheet(ttl=600):
+    client = get_gspread_client()
     spreadsheet = client.open("ideias_Teste")
     worksheet = spreadsheet.worksheet("Ideias")
     return worksheet
 
-client = get_gspread_client()
-worksheet = get_worksheet(client)
+worksheet = get_worksheet()
 
 
 def carregar_dados():
