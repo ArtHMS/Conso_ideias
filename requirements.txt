@@ -3,3 +3,5 @@ pandas
 openpyxl
 emoji
 pytz
+gspread
+google-auth-oauthlib
