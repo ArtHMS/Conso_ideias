@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import os
+import pytz
 
 # Nome do arquivo Excel
 ARQUIVO_EXCEL = "ideias_Teste.xlsx"
@@ -39,6 +40,8 @@ st.set_page_config(page_title="Cadastro de Ideias", page_icon="💡", layout="ce
 st.title("💡 Sistema de Ideias dos Operadores")
 st.write("Preencha o formulário abaixo para registrar sua ideia!")
 
+fuso_horario = pytz.timezone("America/Sao_Paulo")
+
 # --- Formulário ---
 with st.form("form_ideia"):
     nome = st.text_input("👤 Nome do operador")
@@ -52,6 +55,7 @@ with st.form("form_ideia"):
 
     if enviar:
         if nome and area and titulo and descricao:
+            data_envio = datetime.now(fuso_horario).strftime("%d/%m/%Y %H:%M")
             nova_ideia = {
                 "Nome": nome,
                 "Área": area,
