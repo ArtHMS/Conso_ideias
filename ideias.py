@@ -25,11 +25,11 @@ def get_gspread_client():
 def get_worksheet():
     client = get_gspread_client()
 
-    # ### GARANTA QUE ESTA É A URL CORRETA DA SUA PLANILHA ###
+    # !!! IMPORTANTE: Substitua a URL abaixo pela URL da sua planilha
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/1Bz5wBtRSSEz9Hj5TiACOw5V_Zztg2CS_BgrdRPpGt9c/edit?usp=sharing"
     spreadsheet = client.open_by_url(spreadsheet_url)
 
-    # ### GARANTA QUE ESTE É O NOME CORRETO DA SUA ABA ###
+    # !!! IMPORTANTE: Substitua "Ideias" pelo nome exato da sua aba/página na planilha
     worksheet = spreadsheet.worksheet("Ideias")
     return worksheet
 
@@ -68,7 +68,7 @@ def editar_ideia(indice_df, dados_editados):
     st.cache_data.clear()
 
 
-# --- INTERFACE DO STREAMLIT ---
+# --- INTERFACE DO STREAMLIT (sem alterações daqui para baixo) ---
 
 st.title("💡 Sistema de Ideias dos Operadores")
 st.write("Preencha o formulário abaixo para registrar sua ideia!")
@@ -130,3 +130,4 @@ if not df.empty:
         st.rerun()
 else:
     st.info("Nenhuma ideia cadastrada ainda.")
+
