@@ -13,58 +13,47 @@ fuso_horario_sp = pytz.timezone('America/Sao_Paulo')
 # --- CONEXÃO COM GOOGLE SHEETS ---
 
 # Autentica e retorna o cliente gspread. Usa o cache para não reconectar a cada ação.
-@st.cache_resource
-def get_gspread_client():
-    # ### MUDANÇA CRUCIAL AQUI ###
-    # Convertendo o objeto de secrets do Streamlit para um dicionário Python puro.
+def connect_to_google_sheets():
+    # Converte os secrets para um dicionário Python puro
     creds_dict = dict(st.secrets["gcp_service_account"])
+    # Autentica e cria o cliente
     client = gspread.service_account_from_dict(creds_dict)
-    return client
 
-
-# O cache de dados garante que não vamos buscar a planilha repetidamente.
-@st.cache_data(ttl=300)  # Atualiza a cada 5 minutos
-def get_worksheet():
-    client = get_gspread_client()
-
-    # !!! IMPORTANTE: Confirme que esta é a URL correta da sua planilha
+    # URL da sua planilha
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/1Bz5wBtRSSEz9Hj5TiACOw5V_Zztg2CS_BgrdRPpGt9c/edit?usp=sharing"
     spreadsheet = client.open_by_url(spreadsheet_url)
 
-    # !!! IMPORTANTE: Confirme que este é o nome exato da sua aba/página
+    # Nome da sua aba
     worksheet = spreadsheet.worksheet("Ideias")
     return worksheet
 
 
-# Inicializa a conexão
-worksheet = get_worksheet()
+# --- Inicializa a conexão ---
+try:
+    worksheet = connect_to_google_sheets()
+except Exception as e:
+    st.error(f"Não foi possível conectar à Planilha Google. Verifique suas credenciais e permissões. Erro: {e}")
+    st.stop()  # Interrompe a execução do app se a conexão falhar
 
 
 # --- FUNÇÕES PARA MANIPULAR DADOS NA PLANILHA ---
 
 def carregar_dados():
-    # Envolve a chamada de rede em um bloco try-except para melhor feedback de erro
-    try:
-        data = worksheet.get_all_records()
-        df = pd.DataFrame(data)
-        if df.empty:
-            df = pd.DataFrame(columns=["Nome", "Área", "Título", "Descrição", "Impacto", "Data de Envio"])
-        return df
-    except gspread.exceptions.APIError as e:
-        st.error(f"Erro ao acessar a planilha: Verifique as permissões e a URL. Detalhes: {e}")
-        return pd.DataFrame()  # Retorna um dataframe vazio em caso de erro
+    data = worksheet.get_all_records()
+    df = pd.DataFrame(data)
+    if df.empty:
+        df = pd.DataFrame(columns=["Nome", "Área", "Título", "Descrição", "Impacto", "Data de Envio"])
+    return df
 
 
 def salvar_ideia(nova_ideia):
     dados_para_adicionar = list(nova_ideia.values())
     worksheet.append_row(dados_para_adicionar)
-    st.cache_data.clear()
 
 
 def excluir_ideia(indice_df):
     linha_para_excluir = int(indice_df) + 2
     worksheet.delete_rows(linha_para_excluir)
-    st.cache_data.clear()
 
 
 def editar_ideia(indice_df, dados_editados):
@@ -72,7 +61,6 @@ def editar_ideia(indice_df, dados_editados):
     colunas_ordenadas = ["Nome", "Área", "Título", "Descrição", "Impacto", "Data de Envio"]
     valores_para_atualizar = [dados_editados.get(col) for col in colunas_ordenadas]
     worksheet.update(f'A{linha_para_editar}:F{linha_para_editar}', [valores_para_atualizar])
-    st.cache_data.clear()
 
 
 # --- INTERFACE DO STREAMLIT ---
@@ -94,7 +82,7 @@ with st.form("form_ideia", clear_on_submit=True):
                           "Data de Envio": data_envio}
             salvar_ideia(nova_ideia)
             st.success("✅ Ideia registrada com sucesso na Planilha Google!")
-            st.balloons()
+            st.rerun()  # Usamos rerun para recarregar os dados após o envio
         else:
             st.warning("⚠️ Preencha todos os campos obrigatórios antes de enviar.")
 
