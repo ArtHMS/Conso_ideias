@@ -73,13 +73,7 @@ def editar_ideia(indice_df, dados_editados):
     linha_para_editar = int(indice_df) + 2
     colunas_ordenadas = get_column_order()
     valores_para_atualizar = [dados_editados.get(col, "") for col in colunas_ordenadas]
-
-    # --- CORREÇÃO APLICADA AQUI ---
-    # Converte todos os valores para string antes de enviar para a API do Google.
-    # Isso evita o erro 'not JSON serializable' causado por tipos de dados do NumPy/Pandas.
     valores_formatados = [str(valor) for valor in valores_para_atualizar]
-
-    # Atualiza o intervalo correto de colunas (A até W para 23 colunas)
     worksheet.update(f'A{linha_para_editar}:W{linha_para_editar}', [valores_formatados])
     st.cache_data.clear()
 
@@ -88,9 +82,6 @@ def editar_ideia(indice_df, dados_editados):
 
 st.set_page_config(layout="wide")
 st.title("💡 Sistema de Ideias dos Operadores")
-st.title("💡 Sistema de Ideias dos Operadores")
-
-# --- INÍCIO DA SEÇÃO DE ALTERAÇÕES: FILTROS ---
 
 # Carrega todos os dados uma vez
 df = carregar_dados()
@@ -114,9 +105,6 @@ if status_selecionado != "Todos":
 if area_selecionada != "Todas":
     df_filtrado = df_filtrado[df_filtrado["Área"] == area_selecionada]
 
-# --- FIM DA SEÇÃO DE ALTERAÇÕES: FILTROS ---
-
-
 # Formulário de cadastro dentro de um expander para economizar espaço
 with st.expander("📝 Clique aqui para registrar uma nova ideia"):
     with st.form("form_ideia", clear_on_submit=True):
@@ -127,7 +115,8 @@ with st.expander("📝 Clique aqui para registrar uma nova ideia"):
             area_do_operador = st.text_input("🏭 Área do operador *")
         with col2:
             matricula = st.text_input("🔢 Matrícula *")
-            turno_do_operador = st.selectbox("☀️ Turno do operador que deu a ideia", ["Manhã", "Tarde", "Noite", "Geral"])
+            turno_do_operador = st.selectbox("☀️ Turno do operador que deu a ideia",
+                                             ["Manhã", "Tarde", "Noite", "Geral"])
 
         st.markdown("---")
         st.subheader("2. Detalhes da Ideia")
@@ -189,7 +178,6 @@ with st.expander("📝 Clique aqui para registrar uma nova ideia"):
 st.markdown("---")
 st.subheader("📊 Painel de Ideias Registradas")
 
-# --- ALTERAÇÃO AQUI: Usa o DataFrame filtrado para exibição ---
 if not df_filtrado.empty:
     st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
     st.markdown("---")
@@ -199,25 +187,30 @@ if not df_filtrado.empty:
 
     with col_edit:
         st.subheader("✏️ Alterar Ideia")
-        # O seletor de edição/exclusão continua mostrando TODAS as ideias
-        lista_ideias = [f"{idx} - {row['Nome da ideia']}" for idx, row in df.iterrows()]
-        if lista_ideias:
-            ideia_selecionada_str = st.selectbox("Selecione a ideia para editar", options=lista_ideias,
+
+        # --- ALTERAÇÃO AQUI: Popula a lista com base no DataFrame JÁ FILTRADO ---
+        lista_ideias_filtrada = [f"{idx} - {row['Nome da ideia']}" for idx, row in df_filtrado.iterrows()]
+
+        if lista_ideias_filtrada:
+            ideia_selecionada_str = st.selectbox("Selecione a ideia para editar", options=lista_ideias_filtrada,
                                                  key="editor_idx")
             indice_editar = int(ideia_selecionada_str.split(" - ")[0])
 
             with st.expander("Clique para carregar e editar os dados", expanded=False):
+                # --- ALTERAÇÃO AQUI: Busca a ideia no DataFrame original (df) usando o índice correto ---
                 ideia_para_editar = df.loc[indice_editar]
+
                 with st.form("form_edicao"):
                     dados_editados = {}
                     c1, c2 = st.columns(2)
                     with c1:
                         dados_editados["Nome da ideia"] = st.text_input("Nome da ideia",
-                                                                        value=ideia_para_editar.get("Nome da ideia", ""),
+                                                                        value=ideia_para_editar.get("Nome da ideia",
+                                                                                                    ""),
                                                                         key="edit_nome")
-                        # ... (restante do formulário de edição)
                         dados_editados["Dono da ideia"] = st.text_input("Dono da ideia",
-                                                                        value=ideia_para_editar.get("Dono da ideia", ""),
+                                                                        value=ideia_para_editar.get("Dono da ideia",
+                                                                                                    ""),
                                                                         key="edit_dono")
                         dados_editados["Matrícula"] = st.text_input("Matrícula",
                                                                     value=ideia_para_editar.get("Matrícula", ""),
@@ -252,7 +245,8 @@ if not df_filtrado.empty:
                                                                                "Ganho financeiro", ""),
                                                                            key="edit_ganho")
                         dados_editados["Data conclusão"] = st.text_input("Data conclusão",
-                                                                         value=ideia_para_editar.get("Data conclusão", ""),
+                                                                         value=ideia_para_editar.get("Data conclusão",
+                                                                                                     ""),
                                                                          key="edit_data_conc")
                         dados_editados["Link"] = st.text_input("Link", value=ideia_para_editar.get("Link", ""),
                                                                key="edit_link")
@@ -267,14 +261,15 @@ if not df_filtrado.empty:
 
     with col_delete:
         st.subheader("🗑️ Excluir Ideia")
-        if lista_ideias:
-            ideia_excluir_str = st.selectbox("Selecione a ideia para excluir", options=lista_ideias, key="excluir_idx")
+        # --- ALTERAÇÃO AQUI: Usa a lista filtrada também para exclusão ---
+        if 'lista_ideias_filtrada' in locals() and lista_ideias_filtrada:
+            ideia_excluir_str = st.selectbox("Selecione a ideia para excluir", options=lista_ideias_filtrada,
+                                             key="excluir_idx")
             if st.button("❌ Excluir Ideia Selecionada"):
                 indice_excluir = int(ideia_excluir_str.split(" - ")[0])
                 excluir_ideia(indice_excluir)
                 st.success(f"Ideia '{ideia_excluir_str.split(' - ')[1]}' excluída com sucesso!")
                 st.rerun()
 else:
-    # --- ALTERAÇÃO AQUI: Mensagem caso o filtro não retorne resultados ---
     st.info("Nenhuma ideia encontrada com os filtros selecionados ou nenhuma ideia foi cadastrada ainda.")
 
