@@ -73,8 +73,15 @@ def editar_ideia(indice_df, dados_editados):
     linha_para_editar = int(indice_df) + 2
     colunas_ordenadas = get_column_order()
     valores_para_atualizar = [dados_editados.get(col, "") for col in colunas_ordenadas]
+
+    # --- CORREÇÃO APLICADA AQUI ---
+    # Converte todos os valores para string antes de enviar para a API do Google.
+    # Isso evita o erro 'not JSON serializable' causado por tipos de dados do NumPy/Pandas.
+    valores_formatados = [str(valor) for valor in valores_para_atualizar]
+
     # Atualiza o intervalo correto de colunas (A até W para 23 colunas)
-    worksheet.update(f'A{linha_para_editar}:W{linha_para_editar}', [valores_para_atualizar])
+    worksheet.update(f'A{linha_para_editar}:W{linha_para_editar}', [valores_formatados])
+    st.cache_data.clear()
 
 
 # --- INTERFACE STREAMLIT ---
