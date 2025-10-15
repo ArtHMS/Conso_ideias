@@ -6,19 +6,20 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 # --- Configuração da Página e Fuso Horário (Apenas uma vez) ---
-st.set_page_config(page_title="Cadastro de Ideias", page_icon="💡", layout="centered")
-fuso_horario_sp = pytz.timezone('America/Sao_Paulo')
+try:
+    fuso_horario_sp = pytz.timezone('America/Sao_Paulo')
+except pytz.UnknownTimeZoneError:
+    st.error("Fuso horário 'America/Sao_Paulo' não encontrado.")
+    st.stop()
 
 
-# --- CONEXÃO COM GOOGLE SHEETS ---
-
-# Autentica e retorna o cliente gspread. Usa o cache para não reconectar a cada ação.
+# Função para conectar ao Google Sheets
 def connect_to_google_sheets():
     """Conecta-se à planilha Google e retorna o objeto da aba (worksheet)."""
     try:
         creds_dict = dict(st.secrets["gcp_service_account"])
         client = gspread.service_account_from_dict(creds_dict)
-        spreadsheet_url = "https://docs.google.com/spreadsheets/d/1CEu8e_LgTq4NQxm8SWpSsLXYWcGjwJd4YseNUsXm0RQ/edit?usp=sharing"
+        spreadsheet_url = "https://docs.google.com/spreadsheets/d/1CEu_LgTq4NQxm8SWpSsLXYWcGjwJd4YseNUsXm0RQ/edit?usp=sharing"
         spreadsheet = client.open_by_url(spreadsheet_url)
         worksheet = spreadsheet.worksheet("Ideias")
         return worksheet
@@ -31,10 +32,10 @@ def connect_to_google_sheets():
 def get_column_order():
     """Retorna a lista de colunas na ordem exata da planilha."""
     return [
-        "ID", "Nome da ideia", "Descrição da Solução", "Descrição de problema",
-        "Área", "Local", "BL", "Unidade", "Dono da Ideia", "Matrícula",
+        "ID", "Nome da ideia", "Descrição da solução", "Descrição de problema",
+        "Área", "Local", "BL", "Unidade", "Dono da ideia", "Matrícula",
         "Área do operador", "Turno do operador que deu a ideia", "Data ideia",
-        "Metodologia", "Líder", "Equipe", "Status", "Observações", "Data Conclusão",
+        "Metodologia", "Líder", "Equipe", "Status", "Observações", "Data conclusão",
         "Investimento", "Ganho financeiro", "Link", "Apresentou em alguma rotina?"
     ]
 
@@ -50,7 +51,6 @@ def carregar_dados():
     data = worksheet.get_all_records()
     df = pd.DataFrame(data)
     if df.empty:
-        # Se a planilha estiver vazia, cria um DataFrame com a estrutura correta
         df = pd.DataFrame(columns=get_column_order())
     return df
 
@@ -58,14 +58,12 @@ def carregar_dados():
 def salvar_ideia(nova_ideia):
     """Salva uma nova ideia na planilha, garantindo a ordem das colunas."""
     colunas_ordenadas = get_column_order()
-    # Cria uma lista de valores na ordem correta, usando get() para evitar erros
     dados_para_adicionar = [nova_ideia.get(col, "") for col in colunas_ordenadas]
     worksheet.append_row(dados_para_adicionar)
 
 
 def excluir_ideia(indice_df):
     """Exclui uma linha da planilha com base no índice do DataFrame."""
-    # O índice do DataFrame é 0-based, e a planilha é 1-based, com 1 linha de cabeçalho
     linha_para_excluir = int(indice_df) + 2
     worksheet.delete_rows(linha_para_excluir)
 
@@ -83,31 +81,55 @@ def editar_ideia(indice_df, dados_editados):
 
 st.set_page_config(layout="wide")
 st.title("💡 Sistema de Ideias dos Operadores")
-st.write("Preencha o formulário abaixo para registrar sua ideia!")
+st.write("Preencha o formulário abaixo para registrar todos os detalhes da sua ideia!")
 
-# Formulário para registrar uma nova ideia
+# Formulário completo para registrar uma nova ideia
 with st.form("form_ideia", clear_on_submit=True):
+    st.subheader("1. Identificação do Colaborador")
     col1, col2 = st.columns(2)
     with col1:
-        st.subheader("Informações do Operador")
-        dono_da_ideia = st.text_input("👤 Dono da Ideia *")
-        matricula = st.text_input("🔢 Matrícula *")
+        dono_da_ideia = st.text_input("👤 Dono da ideia *")
         area_operador = st.text_input("🏭 Área do operador *")
-        turno_operador = st.selectbox("☀️ Turno", ["Manhã", "Tarde", "Noite", "Geral"])
-
     with col2:
-        st.subheader("Detalhes da ideia")
-        nome_ideia = st.text_input("🧠 Nome da ideia *")
-        descricao_problema = st.text_area("❓ Descrição do Problema *")
-        descricao_solucao = st.text_area("💡 Descrição da Solução Proposta *")
-        area_aplicacao = st.text_input("🏭 Área de aplicação da ideia")
-        local = st.text_input("📍 Local de aplicação")
+        matricula = st.text_input("🔢 Matrícula *")
+        turno_operador = st.selectbox("☀️ Turno do operador", ["Manhã", "Tarde", "Noite", "Geral"])
 
-    enviar = st.form_submit_button("🚀 Enviar Ideia")
+    st.markdown("---")
+    st.subheader("2. Detalhes da Ideia")
+    col3, col4 = st.columns(2)
+    with col3:
+        nome_ideia = st.text_input("🧠 Nome da Ideia *")
+        descricao_problema = st.text_area("❓ Descrição do Problema *", height=150)
+        descricao_solucao = st.text_area("💡 Descrição da Solução Proposta *", height=150)
+    with col4:
+        area_aplicacao = st.text_input("🏭 Área de Aplicação da Ideia")
+        local = st.text_input("📍 Local de Aplicação")
+        unidade = st.text_input("🏢 Unidade")
+        bl = st.text_input("📦 BL (Business Line)")
+
+    st.markdown("---")
+    st.subheader("3. Detalhes de Gestão e Acompanhamento")
+    col5, col6 = st.columns(2)
+    with col5:
+        lider = st.text_input("🧑‍💼 Líder Responsável")
+        equipe = st.text_input("🤝 Equipe Envolvida")
+        metodologia = st.text_input("🛠️ Metodologia Aplicada")
+        status = st.selectbox("📊 Status Inicial",
+                              ["Nova", "Em análise", "Aprovada", "Em implementação", "Concluída", "Rejeitada"])
+        investimento = st.text_input("💰 Investimento Previsto (R$)")
+        ganho_financeiro = st.text_input("💸 Ganho Financeiro Estimado (R$)")
+    with col6:
+        observacoes = st.text_area("📋 Observações Adicionais", height=150)
+        data_conclusao = st.text_input("🗓️ Data de Conclusão (dd/mm/aaaa)")
+        link = st.text_input("🔗 Link (documentos, vídeos, etc.)")
+        apresentou = st.selectbox("🗣️ Apresentou em alguma rotina?", ["Não", "Sim"])
+
+    enviar = st.form_submit_button("🚀 Enviar Ideia Completa")
 
 if enviar:
     # Verifica se os campos obrigatórios foram preenchidos
-    if all([dono_da_ideia, matricula, area_operador, nome_ideia, descricao_problema, descricao_solucao]):
+    campos_obrigatorios = [dono_da_ideia, matricula, area_operador, nome_ideia, descricao_problema, descricao_solucao]
+    if all(campos_obrigatorios):
         df_existente = carregar_dados()
         # Calcula o próximo ID disponível
         novo_id = (pd.to_numeric(df_existente['ID'],
@@ -116,18 +138,28 @@ if enviar:
 
         nova_ideia = {
             "ID": int(novo_id),
-            "Nome da ideia": nome_ideia,
-            "Descrição da solução": descricao_solucao,
+            "Nome da Ideia": nome_ideia,
+            "Descrição da Solução": descricao_solucao,
             "Descrição de problema": descricao_problema,
             "Área": area_aplicacao,
             "Local": local,
-            "Dono da ideia": dono_da_ideia,
+            "BL": bl,
+            "Unidade": unidade,
+            "Dono da Ideia": dono_da_ideia,
             "Matrícula": matricula,
             "Área do operador": area_operador,
             "Turno do operador que deu a ideia": turno_operador,
             "Data ideia": data_ideia,
-            "Status": "Nova",  # Status padrão para novas ideias
-            "Apresentou em alguma rotina?": "Não"
+            "Metodologia": metodologia,
+            "Líder": lider,
+            "Equipe": equipe,
+            "Status": status,
+            "Observações": observacoes,
+            "Data Conclusão": data_conclusao,
+            "Investimento": investimento,
+            "Ganho financeiro": ganho_financeiro,
+            "Link": link,
+            "Apresentou em alguma rotina?": apresentou
         }
         salvar_ideia(nova_ideia)
         st.success("✅ Ideia registrada com sucesso!")
@@ -145,111 +177,95 @@ if not df.empty:
     st.markdown("---")
 
     # Seção para Editar e Excluir
+    st.header("⚙️ Gerenciar Ideias Existentes")
     col_edit, col_delete = st.columns(2)
 
     with col_edit:
         st.subheader("✏️ Alterar Ideia")
-        # Seleciona a ideia para editar de uma forma mais amigável
-        lista_ideias = [f"{idx} - {row['Nome da ideia']}" for idx, row in df.iterrows()]
+        lista_ideias = [f"{idx} - {row['Nome da Ideia']}" for idx, row in df.iterrows()]
         if lista_ideias:
-            ideia_selecionada_str = st.selectbox("Selecione a ideia", options=lista_ideias, key="editor_idx")
+            ideia_selecionada_str = st.selectbox("Selecione a ideia para editar", options=lista_ideias,
+                                                 key="editor_idx")
             indice_editar = int(ideia_selecionada_str.split(" - ")[0])
-            ideia_para_editar = df.loc[indice_editar]
 
-            with st.expander("Clique para editar os dados da ideia selecionada", expanded=False):
-                with st.form("form_edicao"):
-                    dados_editados = {}
+            if st.button("Carregar dados para edição"):
+                st.session_state.ideia_para_editar = df.loc[indice_editar].to_dict()
+                st.session_state.indice_editar = indice_editar
 
-                    # Organiza o formulário de edição em colunas
-                    c1, c2 = st.columns(2)
+    # Formulário de edição aparece apenas quando uma ideia é carregada
+    if 'ideia_para_editar' in st.session_state:
+        st.subheader(f"Editando Ideia: {st.session_state.ideia_para_editar.get('Nome da Ideia', '')}")
+        with st.form("form_edicao"):
+            ideia_atual = st.session_state.ideia_para_editar
+            dados_editados = {}
 
-                    with c1:
-                        st.text_input("ID", value=ideia_para_editar.get("ID", ""), disabled=True)
-                        dados_editados["Nome da ideia"] = st.text_input("Nome da ideia",
-                                                                        value=ideia_para_editar.get("Nome da ideia",
-                                                                                                    ""))
-                        dados_editados["Dono da Ideia"] = st.text_input("Dono da Ideia",
-                                                                        value=ideia_para_editar.get("Dono da ideia",
-                                                                                                    ""))
-                        dados_editados["Matrícula"] = st.text_input("Matrícula",
-                                                                    value=ideia_para_editar.get("Matrícula", ""))
-                        dados_editados["Descrição de problema"] = st.text_area("Descrição de problema",
-                                                                               value=ideia_para_editar.get(
-                                                                                   "Descrição de problema", ""),
-                                                                               height=100)
-                        dados_editados["Descrição da solução"] = st.text_area("Descrição da solução",
-                                                                              value=ideia_para_editar.get(
-                                                                                  "Descrição da solução", ""),
-                                                                              height=100)
-                        dados_editados["Área"] = st.text_input("Área de Aplicação",
-                                                               value=ideia_para_editar.get("Área", ""))
-                        dados_editados["Local"] = st.text_input("Local", value=ideia_para_editar.get("Local", ""))
-                        dados_editados["Líder"] = st.text_input("Líder", value=ideia_para_editar.get("Líder", ""))
-                        dados_editados["Equipe"] = st.text_input("Equipe", value=ideia_para_editar.get("Equipe", ""))
-                        dados_editados["Investimento"] = st.text_input("Investimento (R$)",
-                                                                       value=ideia_para_editar.get("Investimento", ""))
-                        dados_editados["Ganho financeiro"] = st.text_input("Ganho Financeiro (R$)",
-                                                                           value=ideia_para_editar.get(
-                                                                               "Ganho financeiro", ""))
+            c1, c2 = st.columns(2)
+            with c1:
+                dados_editados["Nome da ideia"] = st.text_input("Nome da ideia",
+                                                                value=ideia_atual.get("Nome da ideia", ""))
+                dados_editados["Dono da ideia"] = st.text_input("Dono da ideia",
+                                                                value=ideia_atual.get("Dono da ideia", ""))
+                dados_editados["Matrícula"] = st.text_input("Matrícula", value=ideia_atual.get("Matrícula", ""))
+                dados_editados["Descrição de problema"] = st.text_area("Descrição de problema",
+                                                                       value=ideia_atual.get("Descrição de problema",
+                                                                                             ""), height=100)
+                dados_editados["Descrição da solução"] = st.text_area("Descrição da Solução",
+                                                                      value=ideia_atual.get("Descrição da solução", ""),
+                                                                      height=100)
+                dados_editados["Área"] = st.text_input("Área de Aplicação", value=ideia_atual.get("Área", ""))
+                dados_editados["Local"] = st.text_input("Local", value=ideia_atual.get("Local", ""))
+                dados_editados["Líder"] = st.text_input("Líder", value=ideia_atual.get("Líder", ""))
+                dados_editados["Equipe"] = st.text_input("Equipe", value=ideia_atual.get("Equipe", ""))
+                dados_editados["Investimento"] = st.text_input("Investimento (R$)",
+                                                               value=ideia_atual.get("Investimento", ""))
+                dados_editados["Ganho financeiro"] = st.text_input("Ganho Financeiro (R$)",
+                                                                   value=ideia_atual.get("Ganho financeiro", ""))
 
-                    with c2:
-                        st.text_input("Data da ideia", value=ideia_para_editar.get("Data ideia", ""), disabled=True)
-                        status_options = ["Nova", "Em análise", "Aprovada", "Em implementação", "Concluída",
-                                          "Rejeitada"]
-                        status_atual = ideia_para_editar.get("Status", "Nova")
-                        status_idx = status_options.index(status_atual) if status_atual in status_options else 0
-                        dados_editados["Status"] = st.selectbox("Status", status_options, index=status_idx)
-                        dados_editados["Data Conclusão"] = st.text_input("Data conclusão",
-                                                                         value=ideia_para_editar.get("Data conclusão",
-                                                                                                     ""))
-                        dados_editados["Observações"] = st.text_area("Observações",
-                                                                     value=ideia_para_editar.get("Observações", ""),
-                                                                     height=100)
-                        dados_editados["Metodologia"] = st.text_input("Metodologia",
-                                                                      value=ideia_para_editar.get("Metodologia", ""))
-                        dados_editados["BL"] = st.text_input("BL", value=ideia_para_editar.get("BL", ""))
-                        dados_editados["Unidade"] = st.text_input("Unidade", value=ideia_para_editar.get("Unidade", ""))
-                        dados_editados["Link"] = st.text_input("Link", value=ideia_para_editar.get("Link", ""))
+            with c2:
+                status_options = ["Nova", "Em análise", "Aprovada", "Em implementação", "Concluída", "Rejeitada"]
+                status_atual_val = ideia_atual.get("Status", "Nova")
+                status_idx = status_options.index(status_atual_val) if status_atual_val in status_options else 0
+                dados_editados["Status"] = st.selectbox("Status", status_options, index=status_idx, key="edit_status")
+                dados_editados["Data Conclusão"] = st.text_input("Data conclusão",
+                                                                 value=ideia_atual.get("Data conclusão", ""))
+                dados_editados["Observações"] = st.text_area("Observações", value=ideia_atual.get("Observações", ""),
+                                                             height=100)
+                dados_editados["Metodologia"] = st.text_input("Metodologia", value=ideia_atual.get("Metodologia", ""))
+                dados_editados["BL"] = st.text_input("BL", value=ideia_atual.get("BL", ""))
+                dados_editados["Unidade"] = st.text_input("Unidade", value=ideia_atual.get("Unidade", ""))
+                dados_editados["Link"] = st.text_input("Link", value=ideia_atual.get("Link", ""))
 
-                        apresentou_options = ["Sim", "Não"]
-                        apresentou_atual = ideia_para_editar.get("Apresentou em alguma rotina?", "Não")
-                        apresentou_idx = apresentou_options.index(
-                            apresentou_atual) if apresentou_atual in apresentou_options else 1
-                        dados_editados["Apresentou em alguma rotina?"] = st.selectbox("Apresentou em rotina?",
-                                                                                      apresentou_options,
-                                                                                      index=apresentou_idx)
+                apresentou_options = ["Sim", "Não"]
+                apresentou_atual_val = ideia_atual.get("Apresentou em alguma rotina?", "Não")
+                apresentou_idx = apresentou_options.index(
+                    apresentou_atual_val) if apresentou_atual_val in apresentou_options else 1
+                dados_editados["Apresentou em alguma rotina?"] = st.selectbox("Apresentou em rotina?",
+                                                                              apresentou_options, index=apresentou_idx,
+                                                                              key="edit_apresentou")
+                dados_editados["Área do operador"] = st.text_input("Área do operador",
+                                                                   value=ideia_atual.get("Área do operador", ""))
+                dados_editados["Turno do operador que deu a ideia"] = st.text_input("Turno do operador",
+                                                                                    value=ideia_atual.get(
+                                                                                        "Turno do operador que deu a ideia",
+                                                                                        ""))
 
-                        # Campos do operador (não editáveis aqui ou editáveis?)
-                        dados_editados["Área do operador"] = st.text_input("Área do operador",
-                                                                           value=ideia_para_editar.get(
-                                                                               "Área do operador", ""))
-                        turno_options = ["Manhã", "Tarde", "Noite", "Geral"]
-                        turno_atual = ideia_para_editar.get("Turno do operador que deu a ideia", "Manhã")
-                        turno_idx = turno_options.index(turno_atual) if turno_atual in turno_options else 0
-                        dados_editados["Turno do operador que deu a ideia"] = st.selectbox("Turno do operador",
-                                                                                           turno_options,
-                                                                                           index=turno_idx)
-
-                    if st.form_submit_button("💾 Salvar Alterações"):
-                        # Mantém os valores não editáveis
-                        dados_editados["ID"] = ideia_para_editar.get("ID")
-                        dados_editados["Data ideia"] = ideia_para_editar.get("Data ideia")
-
-                        editar_ideia(indice_editar, dados_editados)
-                        st.success("✅ Ideia atualizada com sucesso!")
-                        st.rerun()
+            if st.form_submit_button("💾 Salvar Alterações"):
+                dados_editados["ID"] = ideia_atual.get("ID")
+                dados_editados["Data ideia"] = ideia_atual.get("Data ideia")
+                editar_ideia(st.session_state.indice_editar, dados_editados)
+                st.success("✅ Ideia atualizada com sucesso!")
+                del st.session_state.ideia_para_editar  # Limpa o estado para fechar o form
+                st.rerun()
 
     with col_delete:
         st.subheader("🗑️ Excluir Ideia")
         if lista_ideias:
-            ideia_excluir_str = st.selectbox("Selecione a ideia", options=lista_ideias, key="excluir_idx")
-            indice_excluir = int(ideia_excluir_str.split(" - ")[0])
-
+            ideia_excluir_str = st.selectbox("Selecione a ideia para excluir", options=lista_ideias, key="excluir_idx")
             if st.button("❌ Excluir Ideia Selecionada"):
+                indice_excluir = int(ideia_excluir_str.split(" - ")[0])
                 excluir_ideia(indice_excluir)
                 st.success(f"Ideia '{ideia_excluir_str.split(' - ')[1]}' excluída com sucesso!")
                 st.rerun()
-
 else:
     st.info("Nenhuma ideia cadastrada ainda.")
 
