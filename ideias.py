@@ -138,14 +138,14 @@ if enviar:
 
         nova_ideia = {
             "ID": int(novo_id),
-            "Nome da Ideia": nome_ideia,
-            "Descrição da Solução": descricao_solucao,
+            "Nome da ideia": nome_ideia,
+            "Descrição da solução": descricao_solucao,
             "Descrição de problema": descricao_problema,
             "Área": area_aplicacao,
             "Local": local,
             "BL": bl,
             "Unidade": unidade,
-            "Dono da Ideia": dono_da_ideia,
+            "Dono da ideia": dono_da_ideia,
             "Matrícula": matricula,
             "Área do operador": area_operador,
             "Turno do operador que deu a ideia": turno_operador,
@@ -155,7 +155,7 @@ if enviar:
             "Equipe": equipe,
             "Status": status,
             "Observações": observacoes,
-            "Data Conclusão": data_conclusao,
+            "Data conclusão": data_conclusao,
             "Investimento": investimento,
             "Ganho financeiro": ganho_financeiro,
             "Link": link,
@@ -182,7 +182,7 @@ if not df.empty:
 
     with col_edit:
         st.subheader("✏️ Alterar Ideia")
-        lista_ideias = [f"{idx} - {row['Nome da Ideia']}" for idx, row in df.iterrows()]
+        lista_ideias = [f"{idx} - {row['Nome da ideia']}" for idx, row in df.iterrows()]
         if lista_ideias:
             ideia_selecionada_str = st.selectbox("Selecione a ideia para editar", options=lista_ideias,
                                                  key="editor_idx")
@@ -194,7 +194,7 @@ if not df.empty:
 
     # Formulário de edição aparece apenas quando uma ideia é carregada
     if 'ideia_para_editar' in st.session_state:
-        st.subheader(f"Editando Ideia: {st.session_state.ideia_para_editar.get('Nome da Ideia', '')}")
+        st.subheader(f"Editando Ideia: {st.session_state.ideia_para_editar.get('Nome da ideia', '')}")
         with st.form("form_edicao"):
             ideia_atual = st.session_state.ideia_para_editar
             dados_editados = {}
