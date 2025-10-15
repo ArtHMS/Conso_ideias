@@ -19,7 +19,7 @@ def connect_to_google_sheets():
     try:
         creds_dict = dict(st.secrets["gcp_service_account"])
         client = gspread.service_account_from_dict(creds_dict)
-        spreadsheet_url = "https://docs.google.com/spreadsheets/d/1CEu_LgTq4NQxm8SWpSsLXYWcGjwJd4YseNUsXm0RQ/edit?usp=sharing"
+        spreadsheet_url = "https://docs.google.com/spreadsheets/d/1CEu8e_LgTq4NQxm8SWpSsLXYWcGjwJd4YseNUsXm0RQ/edit?usp=sharing"
         spreadsheet = client.open_by_url(spreadsheet_url)
         worksheet = spreadsheet.worksheet("Ideias")
         return worksheet
