@@ -98,9 +98,9 @@ with st.form("form_ideia", clear_on_submit=True):
     st.subheader("2. Detalhes da Ideia")
     col3, col4 = st.columns(2)
     with col3:
-        nome_ideia = st.text_input("🧠 Nome da Ideia *")
-        descricao_problema = st.text_area("❓ Descrição do Problema *", height=150)
-        descricao_solucao = st.text_area("💡 Descrição da Solução Proposta *", height=150)
+        nome_ideia = st.text_input("🧠 Nome da ideia *")
+        descricao_problema = st.text_area("❓ Descrição do problema *", height=150)
+        descricao_solucao = st.text_area("💡 Descrição da solução Proposta *", height=150)
     with col4:
         area_aplicacao = st.text_input("🏭 Área de Aplicação da Ideia")
         local = st.text_input("📍 Local de Aplicação")
