@@ -31,7 +31,7 @@ def connect_to_google_sheets():
 def get_column_order():
     """Retorna a lista de colunas na ordem exata da planilha."""
     return [
-        "ID", "Nome da Ideia", "Descrição da Solução", "Descrição de problema",
+        "ID", "Nome da ideia", "Descrição da Solução", "Descrição de problema",
         "Área", "Local", "BL", "Unidade", "Dono da Ideia", "Matrícula",
         "Área do operador", "Turno do operador que deu a ideia", "Data ideia",
         "Metodologia", "Líder", "Equipe", "Status", "Observações", "Data Conclusão",
@@ -96,8 +96,8 @@ with st.form("form_ideia", clear_on_submit=True):
         turno_operador = st.selectbox("☀️ Turno", ["Manhã", "Tarde", "Noite", "Geral"])
 
     with col2:
-        st.subheader("Detalhes da Ideia")
-        nome_ideia = st.text_input("🧠 Nome da Ideia *")
+        st.subheader("Detalhes da ideia")
+        nome_ideia = st.text_input("🧠 Nome da ideia *")
         descricao_problema = st.text_area("❓ Descrição do Problema *")
         descricao_solucao = st.text_area("💡 Descrição da Solução Proposta *")
         area_aplicacao = st.text_input("🏭 Área de aplicação da ideia")
@@ -116,12 +116,12 @@ if enviar:
 
         nova_ideia = {
             "ID": int(novo_id),
-            "Nome da Ideia": nome_ideia,
-            "Descrição da Solução": descricao_solucao,
+            "Nome da ideia": nome_ideia,
+            "Descrição da solução": descricao_solucao,
             "Descrição de problema": descricao_problema,
             "Área": area_aplicacao,
             "Local": local,
-            "Dono da Ideia": dono_da_ideia,
+            "Dono da ideia": dono_da_ideia,
             "Matrícula": matricula,
             "Área do operador": area_operador,
             "Turno do operador que deu a ideia": turno_operador,
@@ -150,7 +150,7 @@ if not df.empty:
     with col_edit:
         st.subheader("✏️ Alterar Ideia")
         # Seleciona a ideia para editar de uma forma mais amigável
-        lista_ideias = [f"{idx} - {row['Nome da Ideia']}" for idx, row in df.iterrows()]
+        lista_ideias = [f"{idx} - {row['Nome da ideia']}" for idx, row in df.iterrows()]
         if lista_ideias:
             ideia_selecionada_str = st.selectbox("Selecione a ideia", options=lista_ideias, key="editor_idx")
             indice_editar = int(ideia_selecionada_str.split(" - ")[0])
@@ -165,11 +165,11 @@ if not df.empty:
 
                     with c1:
                         st.text_input("ID", value=ideia_para_editar.get("ID", ""), disabled=True)
-                        dados_editados["Nome da Ideia"] = st.text_input("Nome da Ideia",
-                                                                        value=ideia_para_editar.get("Nome da Ideia",
+                        dados_editados["Nome da ideia"] = st.text_input("Nome da ideia",
+                                                                        value=ideia_para_editar.get("Nome da ideia",
                                                                                                     ""))
                         dados_editados["Dono da Ideia"] = st.text_input("Dono da Ideia",
-                                                                        value=ideia_para_editar.get("Dono da Ideia",
+                                                                        value=ideia_para_editar.get("Dono da ideia",
                                                                                                     ""))
                         dados_editados["Matrícula"] = st.text_input("Matrícula",
                                                                     value=ideia_para_editar.get("Matrícula", ""))
@@ -177,9 +177,9 @@ if not df.empty:
                                                                                value=ideia_para_editar.get(
                                                                                    "Descrição de problema", ""),
                                                                                height=100)
-                        dados_editados["Descrição da Solução"] = st.text_area("Descrição da Solução",
+                        dados_editados["Descrição da solução"] = st.text_area("Descrição da solução",
                                                                               value=ideia_para_editar.get(
-                                                                                  "Descrição da Solução", ""),
+                                                                                  "Descrição da solução", ""),
                                                                               height=100)
                         dados_editados["Área"] = st.text_input("Área de Aplicação",
                                                                value=ideia_para_editar.get("Área", ""))
@@ -193,14 +193,14 @@ if not df.empty:
                                                                                "Ganho financeiro", ""))
 
                     with c2:
-                        st.text_input("Data da Ideia", value=ideia_para_editar.get("Data ideia", ""), disabled=True)
+                        st.text_input("Data da ideia", value=ideia_para_editar.get("Data ideia", ""), disabled=True)
                         status_options = ["Nova", "Em análise", "Aprovada", "Em implementação", "Concluída",
                                           "Rejeitada"]
                         status_atual = ideia_para_editar.get("Status", "Nova")
                         status_idx = status_options.index(status_atual) if status_atual in status_options else 0
                         dados_editados["Status"] = st.selectbox("Status", status_options, index=status_idx)
-                        dados_editados["Data Conclusão"] = st.text_input("Data Conclusão",
-                                                                         value=ideia_para_editar.get("Data Conclusão",
+                        dados_editados["Data Conclusão"] = st.text_input("Data conclusão",
+                                                                         value=ideia_para_editar.get("Data conclusão",
                                                                                                      ""))
                         dados_editados["Observações"] = st.text_area("Observações",
                                                                      value=ideia_para_editar.get("Observações", ""),
