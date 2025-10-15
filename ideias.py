@@ -88,98 +88,110 @@ def editar_ideia(indice_df, dados_editados):
 
 st.set_page_config(layout="wide")
 st.title("💡 Sistema de Ideias dos Operadores")
-st.write("Preencha o formulário abaixo para registrar todos os detalhes da sua ideia!")
+st.title("💡 Sistema de Ideias dos Operadores")
 
-# Formulário alinhado com as colunas da planilha
-with st.form("form_ideia", clear_on_submit=True):
-    st.subheader("1. Identificação do Colaborador")
-    col1, col2 = st.columns(2)
-    with col1:
-        dono_da_ideia = st.text_input("👤 Dono da ideia *")
-        area_do_operador = st.text_input("🏭 Área do operador *")
-    with col2:
-        matricula = st.text_input("🔢 Matrícula *")
-        turno_do_operador = st.selectbox("☀️ Turno do operador que deu a ideia", ["Manhã", "Tarde", "Noite", "Geral"])
+# --- INÍCIO DA SEÇÃO DE ALTERAÇÕES: FILTROS ---
 
-    st.markdown("---")
-    st.subheader("2. Detalhes da Ideia")
-    col3, col4 = st.columns(2)
-    with col3:
-        nome_da_ideia = st.text_input("🧠 Nome da ideia *")
-        descricao_de_problema = st.text_area("❓ Descrição de problema *", height=150)
-        descricao_da_solucao = st.text_area("💡 Descrição da solução *", height=150)
-    with col4:
-        area = st.text_input("🏭 Área (da ideia)")
-        local = st.text_input("📍 Local")
-        unidade = st.text_input("🏢 Unidade")
-        bl = st.text_input("📦 BL")
+# Carrega todos os dados uma vez
+df = carregar_dados()
 
-    st.markdown("---")
-    st.subheader("3. Detalhes de Gestão e Acompanhamento")
-    col5, col6 = st.columns(2)
-    with col5:
-        lider = st.text_input("🧑‍💼 Líder")
-        equipe = st.text_input("🤝 Equipe")
-        metodologia = st.text_input("🛠️ Metodologia")
-        status = st.selectbox("📊 Status",
-                              ["Nova", "Em análise", "Aprovada", "Em implementação", "Concluída", "Rejeitada"])
-        investimento = st.text_input("💰 Investimento (R$)")
-        ganho_financeiro = st.text_input("💸 Ganho financeiro (R$)")
-    with col6:
-        observacoes = st.text_area("📋 Observações", height=150)
-        data_conclusao = st.text_input("🗓️ Data conclusão (dd/mm/aaaa)")
-        link = st.text_input("🔗 Link")
-        apresentou_em_rotina = st.selectbox("🗣️ Apresentou em alguma rotina?", ["Não", "Sim"])
+# Cria a barra lateral para os filtros
+st.sidebar.header("🔍 Filtros do Painel")
 
-    enviar = st.form_submit_button("🚀 Enviar Ideia Completa")
+# Filtro por Status
+status_disponiveis = ["Todos"] + df["Status"].unique().tolist()
+status_selecionado = st.sidebar.selectbox("Filtrar por Status", status_disponiveis)
 
-if enviar:
-    campos_obrigatorios = [dono_da_ideia, matricula, area_do_operador, nome_da_ideia, descricao_de_problema,
-                           descricao_da_solucao]
-    if all(campos_obrigatorios):
-        df_existente = carregar_dados()
-        novo_id = (pd.to_numeric(df_existente['ID'],
-                                 errors='coerce').max() + 1) if not df_existente.empty and 'ID' in df_existente else 1
-        data_ideia = datetime.now(fuso_horario_sp).strftime("%d/%m/%Y")
+# Filtro por Área
+areas_disponiveis = ["Todas"] + df["Área"].unique().tolist()
+area_selecionada = st.sidebar.selectbox("Filtrar por Área da Ideia", areas_disponiveis)
 
-        nova_ideia = {
-            "ID": int(novo_id),
-            "Nome da ideia": nome_da_ideia,
-            "Descrição da solução": descricao_da_solucao,
-            "Descrição de problema": descricao_de_problema,
-            "Área": area,
-            "Local": local,
-            "BL": bl,
-            "Unidade": unidade,
-            "Dono da ideia": dono_da_ideia,
-            "Matrícula": matricula,
-            "Área do operador": area_do_operador,
-            "Turno do operador que deu a ideia": turno_do_operador,
-            "Data ideia": data_ideia,
-            "Metodologia": metodologia,
-            "Líder": lider,
-            "Equipe": equipe,
-            "Status": status,
-            "Observações": observacoes,
-            "Data conclusão": data_conclusao,
-            "Investimento": investimento,
-            "Ganho financeiro": ganho_financeiro,
-            "Link": link,
-            "Apresentou em alguma rotina?": apresentou_em_rotina
-        }
-        salvar_ideia(nova_ideia)
-        st.success("✅ Ideia registrada com sucesso!")
-        st.rerun()
-    else:
-        st.warning("⚠️ Por favor, preencha todos os campos marcados com *.")
+# Aplica os filtros ao DataFrame
+df_filtrado = df.copy()
+if status_selecionado != "Todos":
+    df_filtrado = df_filtrado[df_filtrado["Status"] == status_selecionado]
+
+if area_selecionada != "Todas":
+    df_filtrado = df_filtrado[df_filtrado["Área"] == area_selecionada]
+
+# --- FIM DA SEÇÃO DE ALTERAÇÕES: FILTROS ---
+
+
+# Formulário de cadastro dentro de um expander para economizar espaço
+with st.expander("📝 Clique aqui para registrar uma nova ideia"):
+    with st.form("form_ideia", clear_on_submit=True):
+        st.subheader("1. Identificação do Colaborador")
+        col1, col2 = st.columns(2)
+        with col1:
+            dono_da_ideia = st.text_input("👤 Dono da ideia *")
+            area_do_operador = st.text_input("🏭 Área do operador *")
+        with col2:
+            matricula = st.text_input("🔢 Matrícula *")
+            turno_do_operador = st.selectbox("☀️ Turno do operador que deu a ideia", ["Manhã", "Tarde", "Noite", "Geral"])
+
+        st.markdown("---")
+        st.subheader("2. Detalhes da Ideia")
+        col3, col4 = st.columns(2)
+        with col3:
+            nome_da_ideia = st.text_input("🧠 Nome da ideia *")
+            descricao_de_problema = st.text_area("❓ Descrição de problema *", height=150)
+            descricao_da_solucao = st.text_area("💡 Descrição da solução *", height=150)
+        with col4:
+            area = st.text_input("🏭 Área (da ideia)")
+            local = st.text_input("📍 Local")
+            unidade = st.text_input("🏢 Unidade")
+            bl = st.text_input("📦 BL")
+
+        st.markdown("---")
+        st.subheader("3. Detalhes de Gestão e Acompanhamento")
+        col5, col6 = st.columns(2)
+        with col5:
+            lider = st.text_input("🧑‍💼 Líder")
+            equipe = st.text_input("🤝 Equipe")
+            metodologia = st.text_input("🛠️ Metodologia")
+            status = st.selectbox("📊 Status",
+                                  ["Nova", "Em análise", "Aprovada", "Em implementação", "Concluída", "Rejeitada"])
+            investimento = st.text_input("💰 Investimento (R$)")
+            ganho_financeiro = st.text_input("💸 Ganho financeiro (R$)")
+        with col6:
+            observacoes = st.text_area("📋 Observações", height=150)
+            data_conclusao = st.text_input("🗓️ Data conclusão (dd/mm/aaaa)")
+            link = st.text_input("🔗 Link")
+            apresentou_em_rotina = st.selectbox("🗣️ Apresentou em alguma rotina?", ["Não", "Sim"])
+
+        enviar = st.form_submit_button("🚀 Enviar Ideia Completa")
+
+    if enviar:
+        campos_obrigatorios = [dono_da_ideia, matricula, area_do_operador, nome_da_ideia, descricao_de_problema,
+                               descricao_da_solucao]
+        if all(campos_obrigatorios):
+            df_existente = carregar_dados()
+            novo_id = (pd.to_numeric(df_existente['ID'],
+                                     errors='coerce').max() + 1) if not df_existente.empty and 'ID' in df_existente else 1
+            data_ideia = datetime.now(fuso_horario_sp).strftime("%d/%m/%Y")
+
+            nova_ideia = {
+                "ID": int(novo_id), "Nome da ideia": nome_da_ideia, "Descrição da solução": descricao_da_solucao,
+                "Descrição de problema": descricao_de_problema, "Área": area, "Local": local, "BL": bl,
+                "Unidade": unidade, "Dono da ideia": dono_da_ideia, "Matrícula": matricula,
+                "Área do operador": area_do_operador, "Turno do operador que deu a ideia": turno_do_operador,
+                "Data ideia": data_ideia, "Metodologia": metodologia, "Líder": lider, "Equipe": equipe,
+                "Status": status, "Observações": observacoes, "Data conclusão": data_conclusao,
+                "Investimento": investimento, "Ganho financeiro": ganho_financeiro, "Link": link,
+                "Apresentou em alguma rotina?": apresentou_em_rotina
+            }
+            salvar_ideia(nova_ideia)
+            st.success("✅ Ideia registrada com sucesso!")
+            st.rerun()
+        else:
+            st.warning("⚠️ Por favor, preencha todos os campos marcados com *.")
 
 st.markdown("---")
 st.subheader("📊 Painel de Ideias Registradas")
 
-df = carregar_dados()
-
-if not df.empty:
-    st.dataframe(df, use_container_width=True, hide_index=True)
+# --- ALTERAÇÃO AQUI: Usa o DataFrame filtrado para exibição ---
+if not df_filtrado.empty:
+    st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
     st.markdown("---")
 
     st.header("⚙️ Gerenciar Ideias Existentes")
@@ -187,6 +199,7 @@ if not df.empty:
 
     with col_edit:
         st.subheader("✏️ Alterar Ideia")
+        # O seletor de edição/exclusão continua mostrando TODAS as ideias
         lista_ideias = [f"{idx} - {row['Nome da ideia']}" for idx, row in df.iterrows()]
         if lista_ideias:
             ideia_selecionada_str = st.selectbox("Selecione a ideia para editar", options=lista_ideias,
@@ -200,12 +213,11 @@ if not df.empty:
                     c1, c2 = st.columns(2)
                     with c1:
                         dados_editados["Nome da ideia"] = st.text_input("Nome da ideia",
-                                                                        value=ideia_para_editar.get("Nome da ideia",
-                                                                                                    ""),
+                                                                        value=ideia_para_editar.get("Nome da ideia", ""),
                                                                         key="edit_nome")
+                        # ... (restante do formulário de edição)
                         dados_editados["Dono da ideia"] = st.text_input("Dono da ideia",
-                                                                        value=ideia_para_editar.get("Dono da ideia",
-                                                                                                    ""),
+                                                                        value=ideia_para_editar.get("Dono da ideia", ""),
                                                                         key="edit_dono")
                         dados_editados["Matrícula"] = st.text_input("Matrícula",
                                                                     value=ideia_para_editar.get("Matrícula", ""),
@@ -240,18 +252,15 @@ if not df.empty:
                                                                                "Ganho financeiro", ""),
                                                                            key="edit_ganho")
                         dados_editados["Data conclusão"] = st.text_input("Data conclusão",
-                                                                         value=ideia_para_editar.get("Data conclusão",
-                                                                                                     ""),
+                                                                         value=ideia_para_editar.get("Data conclusão", ""),
                                                                          key="edit_data_conc")
                         dados_editados["Link"] = st.text_input("Link", value=ideia_para_editar.get("Link", ""),
                                                                key="edit_link")
 
                     if st.form_submit_button("💾 Salvar Alterações"):
-                        # Preenche o resto dos dados para não perdê-los
                         for col in get_column_order():
                             if col not in dados_editados:
                                 dados_editados[col] = ideia_para_editar.get(col)
-
                         editar_ideia(indice_editar, dados_editados)
                         st.success("✅ Ideia atualizada com sucesso!")
                         st.rerun()
@@ -266,5 +275,6 @@ if not df.empty:
                 st.success(f"Ideia '{ideia_excluir_str.split(' - ')[1]}' excluída com sucesso!")
                 st.rerun()
 else:
-    st.info("Nenhuma ideia cadastrada ainda.")
+    # --- ALTERAÇÃO AQUI: Mensagem caso o filtro não retorne resultados ---
+    st.info("Nenhuma ideia encontrada com os filtros selecionados ou nenhuma ideia foi cadastrada ainda.")
 
