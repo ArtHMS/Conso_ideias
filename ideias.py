@@ -142,9 +142,16 @@ with st.expander("📝 Clique aqui para registrar uma nova ideia"):
                                  "Portaria - EQ", "Produção", "Qualidade", "Recuperação de fibras",
                                  "Refino", "Rotulagem", "Segurança", "Torres de Resfriamento", "Torres de Vidro",
                                  "USE", "Zinco"])
-            local = st.text_input("📍 Local")
-            unidade = st.text_input("🏢 Unidade")
-            bl = st.text_input("📦 BL")
+            local = st.selectbox("📍 Local",
+                                 ["Alccolização", "Área Ácida", "Envase Cobre FI", "Extração Química",
+                                  "Fábrica de Barricas", "Lixiviação", "Manutenção", "Nitrocelulose",
+                                  "Planta de Soluções", "Portaria - EQ", "Preparação", "Sulfato de Cobre Cristalização",
+                                  "Sulfato de Cobre Reação", "Sulfato de Cobre Secagem", "Sulfato de Zinco Evaporador",
+                                  "Sulfato de Zinco Reação", "Sulfato de Zinco Tratamento"])
+            unidade = st.selectbox("🏢 Unidade",
+                                   ["CL", "SMP"])
+            bl = st.text_input("📦 BL",
+                               ["EQ"])
 
         st.markdown("---")
         st.subheader("3. Detalhes de Gestão e Acompanhamento")
