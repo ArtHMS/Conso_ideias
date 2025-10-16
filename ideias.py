@@ -119,11 +119,15 @@ with st.expander("📝 Clique aqui para registrar uma nova ideia"):
         col1, col2 = st.columns(2)
         with col1:
             dono_da_ideia = st.text_input("👤 Dono da ideia *")
-            area_do_operador = st.text_input("🏭 Área do operador *")
+            area_do_operador = st.selectbox("🏭 Área do operador *",
+                                            ["Alcoolização", "Almoxerifado", "Área Ácida", "Àrea Àcida",
+                                             "Excelência Operacional", "Fábrica de Barricas", "Laboratório",
+                                             "Manutenção", "Nitrocelulose", "PCP", "Planta de Soluções",
+                                             "Preparação", "Processos", "Produção", "Qualidade", "Segurança"])
         with col2:
             matricula = st.text_input("🔢 Matrícula *")
             turno_do_operador = st.selectbox("☀️ Turno do operador que deu a ideia",
-                                             ["Manhã", "Tarde", "Noite", "Geral"])
+                                             ["1", "2", "3", "A", "ADM", "B", "Escala", "Turno A"])
         st.markdown("---")
         st.subheader("2. Detalhes da Ideia")
         # ... (restante do formulário)
@@ -159,7 +163,8 @@ with st.expander("📝 Clique aqui para registrar uma nova ideia"):
         with col5:
             lider = st.text_input("🧑‍💼 Líder")
             equipe = st.text_input("🤝 Equipe")
-            metodologia = st.text_input("🛠️ Metodologia")
+            metodologia = st.selectbox("🛠️ Metodologia",
+                                       ["Green Belt", "Kaizen", "PDCA", "Yellow Belt"])
             status = st.selectbox("📊 Status",
                                   ["Nova", "Em análise", "Aprovada", "Em implementação", "Concluída", "Rejeitada"])
             investimento = st.text_input("💰 Investimento (R$)")
