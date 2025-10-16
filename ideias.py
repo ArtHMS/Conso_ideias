@@ -133,7 +133,15 @@ with st.expander("📝 Clique aqui para registrar uma nova ideia"):
             descricao_de_problema = st.text_area("❓ Descrição de problema *", height=150)
             descricao_da_solucao = st.text_area("💡 Descrição da solução *", height=150)
         with col4:
-            area = st.text_input("🏭 Área (da ideia)")
+            area = st.selectbox("🏭 Área (da ideia)",
+                                ["Adm", "Alcoolização", "Almoxerifado", "Àrea Externa",
+                                 "Caldeira", "Cobre", "Digestão", "Estabilização",
+                                 "Estocagem", "Extração Química", "Fábrica de Barricas",
+                                 "Flocadora", "Homogeinização", "Laboratório", "Lixiviação",
+                                 "Manutenção", "Nitração", "Nitrocelulose", "Planta de Soluções",
+                                 "Portaria - EQ", "Produção", "Qualidade", "Recuperação de fibras",
+                                 "Refino", "Rotulagem", "Segurança", "Torres de Resfriamento", "Torres de Vidro",
+                                 "USE", "Zinco"])
             local = st.text_input("📍 Local")
             unidade = st.text_input("🏢 Unidade")
             bl = st.text_input("📦 BL")
