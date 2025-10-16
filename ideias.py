@@ -202,7 +202,7 @@ with st.expander("📝 Clique aqui para registrar uma nova ideia"):
             st.warning("⚠️ Por favor, preencha todos os campos marcados com *.")
 
 st.markdown("---")
-st.subheader("📊 Painel de Ideias Registradas")
+st.subheader(" Painel de Ideias Registradas")
 
 if not df_filtrado.empty:
     st.dataframe(df_filtrado.reset_index(drop=True), use_container_width=True)  # Reset index para visualização
