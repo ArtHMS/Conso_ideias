@@ -150,7 +150,7 @@ with st.expander("📝 Clique aqui para registrar uma nova ideia"):
                                   "Sulfato de Zinco Reação", "Sulfato de Zinco Tratamento"])
             unidade = st.selectbox("🏢 Unidade",
                                    ["CL", "SMP"])
-            bl = st.text_input("📦 BL",
+            bl = st.selectbox("📦 BL",
                                ["EQ"])
 
         st.markdown("---")
