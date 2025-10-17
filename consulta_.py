@@ -54,7 +54,7 @@ if not df_filtrado.empty:
 
     with col_edit:
         st.subheader("✏️ Alterar Ideia")
-        lista_ideias_filtrada = [f"{row['ID']} - {row['Nome da Ideia']}" for index, row in df_filtrado.iterrows()]
+        lista_ideias_filtrada = [f"{row['ID']} - {row['Nome da ideia']}" for index, row in df_filtrado.iterrows()]
 
         if lista_ideias_filtrada:
             ideia_selecionada_str = st.selectbox("Selecione a ideia para editar", options=lista_ideias_filtrada,
@@ -72,8 +72,8 @@ if not df_filtrado.empty:
                         dados_editados = {}
                         c1, c2 = st.columns(2)
                         with c1:
-                            dados_editados["Nome da Ideia"] = st.text_input("Nome da Ideia",
-                                                                            value=ideia_para_editar.get("Nome da Ideia",
+                            dados_editados["Nome da ideia"] = st.text_input("Nome da ideia",
+                                                                            value=ideia_para_editar.get("Nome da ideia",
                                                                                                         ""),
                                                                             key=f"edit_nome_{id_selecionado}")
                             dados_editados["Dono da ideia"] = st.text_input("Dono da ideia",
