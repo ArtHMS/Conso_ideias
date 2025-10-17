@@ -98,13 +98,13 @@ def editar_ideia(indice_real_df, dados_editados):
 # --- INTERFACE STREAMLIT ---
 
 st.set_page_config(layout="wide")
-st.title("💡 Sistema de Ideias dos Operadores")
+st.title(" Sistema de Ideias dos Operadores")
 
 # Carrega todos os dados uma vez
 df = carregar_dados()
 
 # Cria a barra lateral para os filtros
-st.sidebar.header("🔍 Filtros do Painel")
+st.sidebar.header(" Filtros do Painel")
 
 # Filtro por Status
 status_disponiveis = ["Todos"] + df["Status"].unique().tolist()
@@ -123,7 +123,7 @@ if area_selecionada != "Todas":
     df_filtrado = df_filtrado[df_filtrado["Área"] == area_selecionada]
 
 # Formulário de cadastro dentro de um expander para economizar espaço
-with st.expander("📝 Clique aqui para registrar uma nova ideia"):
+with st.expander(" Clique aqui para registrar uma nova ideia"):
     with st.form("form_ideia", clear_on_submit=True):
         # ... (código do formulário de cadastro, sem alterações) ...
         st.subheader("1. Identificação do Colaborador")
@@ -219,11 +219,11 @@ if not df_filtrado.empty:
     st.dataframe(df_filtrado.reset_index(drop=True), use_container_width=True)  # Reset index para visualização
     st.markdown("---")
 
-    st.header("⚙️ Gerenciar Ideias Existentes")
+    st.header(" Gerenciar Ideias Existentes")
     col_edit, col_delete = st.columns(2)
 
     with col_edit:
-        st.subheader("✏️ Alterar Ideia")
+        st.subheader(" Alterar Ideia")
 
         # --- ALTERAÇÃO AQUI: Popula a lista com ID - Nome da ideia ---
         lista_ideias_filtrada = [f"{row['ID']} - {row['Nome da ideia']}" for index, row in df_filtrado.iterrows()]
@@ -310,7 +310,7 @@ if not df_filtrado.empty:
                             st.rerun()
 
     with col_delete:
-        st.subheader("🗑️ Excluir Ideia")
+        st.subheader(" Excluir Ideia")
         if 'lista_ideias_filtrada' in locals() and lista_ideias_filtrada:
             ideia_excluir_str = st.selectbox("Selecione a ideia para excluir", options=lista_ideias_filtrada,
                                              key="excluir_idx")
