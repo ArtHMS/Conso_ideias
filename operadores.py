@@ -2,6 +2,19 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 from utils import carregar_dados, salvar_ideia, fuso_horario_sp
+from PIL import Image
+
+st.title("Importar Imagem")
+
+uploaded_file = st.file_uploader("Escolha uma imagem", type="jpg")
+if uploaded_file is not None:
+    st.subheader("Imagem carregada")
+    image = Image.open(uploaded_file)
+
+    st.image(image, caption="Imagem carregada", use_column_width=True)
+else:
+    st.info("Faça o uploada de uma imagem")
+
 
 hide_streamlit_style = """
     <style>
