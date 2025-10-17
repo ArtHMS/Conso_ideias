@@ -5,6 +5,17 @@ import pytz
 import gspread
 from google.oauth2.service_account import Credentials
 
+# Oculta o rodapé de menu
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+
 # --- Configuração da Página e Fuso Horário (Apenas uma vez) ---
 try:
     fuso_horario_sp = pytz.timezone('America/Sao_Paulo')
