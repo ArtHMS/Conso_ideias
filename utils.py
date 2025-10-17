@@ -35,7 +35,7 @@ worksheet = connect_to_google_sheets()
 def get_column_order():
     """Retorna a lista de colunas na ordem exata da planilha."""
     return [
-        "ID", "Nome da Ideia", "Descrição da solução", "Descrição de problema",
+        "ID", "Nome da ideia", "Descrição da solução", "Descrição de problema",
         "Área", "Local", "BL", "Unidade", "Dono da ideia", "Matrícula",
         "Área do operador", "Turno do operador que deu a ideia", "Data ideia",
         "Metodologia", "Líder", "Equipe", "Status", "Observações", "Data conclusão",
