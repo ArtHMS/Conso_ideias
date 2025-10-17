@@ -3,6 +3,17 @@ import pandas as pd
 from datetime import datetime
 from utils import carregar_dados, salvar_ideia, fuso_horario_sp
 
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    [data-testid="stToolbar"] {visibility: hidden;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(layout="centered", page_title="Cadastro de Ideias")
 
