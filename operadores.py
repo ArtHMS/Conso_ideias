@@ -16,10 +16,16 @@ with st.form("form_ideia", clear_on_submit=True):
     col1, col2 = st.columns(2)
     with col1:
         dono_da_ideia = st.text_input("👤 Seu Nome Completo *")
-        area_do_operador = st.text_input("🏭 Sua Área / Setor *")
+        area_do_operador = st.selectbox("🏭 Sua Área / Setor *",
+                                        ["Adm", "Alcoolização", "Almoxerifado", "Área Externa",
+                                         "Caldeira", "Cobre", "Digestão", "Estabilização", "Estocagem",
+                                         "Extração Química", "Fábrica de Barricas", "Flocadora", "Homogeneização",
+                                         "Laboratório", "Lixiviação", "Manutenção", "Nitração", "Nitrocelulose",
+                                         "Planta de Soluções", "Portaria - EQ", "Produção", "Qualidade", "Recuperação de fibras",
+                                         "Refino", "Rotulagem", "Segurança", "Torres de Resfriamento", "Torres de Vidro", "USE", "Zinco"])
     with col2:
         matricula = st.text_input("🔢 Sua Matrícula *")
-        turno_do_operador = st.selectbox("☀️ Seu Turno", ["Manhã", "Tarde", "Noite", "Geral"])
+        turno_do_operador = st.selectbox("☀️ Seu Turno", ["1", "2", "3", "A", "ADM", "B", "Escala", "Turno A"])
 
     st.markdown("---")
     st.subheader("2. Detalhes da Ideia")
@@ -45,7 +51,7 @@ if enviar:
 
         # Monta o dicionário com os dados para salvar
         nova_ideia = {
-            "ID": int(novo_id), "Nome da Ideia": nome_da_ideia, "Descrição da solução": descricao_da_solucao,
+            "ID": int(novo_id), "Nome da ideia": nome_da_ideia, "Descrição da solução": descricao_da_solucao,
             "Descrição de problema": descricao_de_problema, "Área": area_aplicacao, "Local": local_aplicacao,
             "Dono da ideia": dono_da_ideia, "Matrícula": matricula, "Área do operador": area_do_operador,
             "Turno do operador que deu a ideia": turno_do_operador, "Data ideia": data_ideia,
