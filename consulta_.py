@@ -103,9 +103,10 @@ if not df_filtrado.empty:
                                 "Status") in status_options else 0
                             dados_editados["Status"] = st.selectbox("Status", status_options, index=status_idx,
                                                                     key=f"edit_status_{id_selecionado}")
+                            #Editar metodologia
                             metodologia_options = ["Green Belt", "Kaizen", "PDCA", "Yellow Belt"]
                             metodologia_idx = metodologia_options.index(
-                                metologia_editar.get("Status")) if metologia_editar.get(
+                                metodologia_editar.get("Status", "Green Belt")) if metodologia_editar.get(
                                 "Metodologia") in metodologia_options else 0
                             dados_editados["Metodologia"] = st.selectbox("Metodologia", metodologia_options, index=metodologia_idx,
                                                                          key=f"edit_metodologia_{id_selecionado}")
