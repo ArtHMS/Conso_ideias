@@ -106,7 +106,7 @@ if not df_filtrado.empty:
                             #Editar metodologia
                             metodologia_options = ["Green Belt", "Kaizen", "PDCA", "Yellow Belt"]
                             metodologia_idx = metodologia_options.index(
-                                metodologia_editar.get("Status", "Green Belt")) if metodologia_editar.get(
+                                ideia_para_editar.get("Status", "Green Belt")) if ideia_para_editar.get(
                                 "Metodologia") in metodologia_options else 0
                             dados_editados["Metodologia"] = st.selectbox("Metodologia", metodologia_options, index=metodologia_idx,
                                                                          key=f"edit_metodologia_{id_selecionado}")
