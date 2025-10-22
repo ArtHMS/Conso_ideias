@@ -28,19 +28,12 @@ if 'Área' in df.columns:
 else:
     area_selecionada = "Todos"
 
-# Filtro por ID
-if 'ID' in df.columns:
-    id_disponiveis = ["Todos"] + df["ID"].unique().tolist()
-    id_disponiveis = st.sidebar.selectbox("Filtrar por ID", id_disponiveis)
-else:
-    id_disponiveis = "Todos"
-
-# Filtro por nome
+# Filtro por matrícula
 if "Matrícula" in df.columns:
-    matriculas_disponiveis = df["Matrícula"].unique().tolist()
-    matriculas_disponiveis = st.sidebar.selectbox("Filtrar por matrícula", matriculas_disponiveis)
+    matriculas_disponiveis = ["Todos"] + df["Matrícula"].unique().tolist()
+    matriculas_selecionadas = st.sidebar.selectbox("Filtrar por matrícula", matriculas_disponiveis)
 else:
-    matriculas_disponiveis = "Matrícula"
+    matriculas_disponiveis = "Todos"
 
 # Botão para limpar o cache na barra lateral
 if st.sidebar.button("🔄 Limpar Cache e Recarregar Dados"):
@@ -54,6 +47,9 @@ if status_selecionado != "Todos" and 'Status' in df_filtrado.columns:
 
 if area_selecionada != "Todos" and 'Área' in df_filtrado.columns:
     df_filtrado = df_filtrado[df_filtrado["Área"] == area_selecionada]
+
+if matriculas_selecionadas != "Todos" and 'Matrícula' in df_filtrado.columns:
+    df_filtrado = df_filtrado[df_filtrado["Matrícula"] == matriculas_selecionadas]
 
 # --- PAINEL DE IDEIAS REGISTRADAS ---
 st.header("📊 Ideias Registradas")
