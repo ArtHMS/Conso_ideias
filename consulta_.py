@@ -28,6 +28,20 @@ if 'Área' in df.columns:
 else:
     area_selecionada = "Todos"
 
+# Filtro por ID
+if 'ID' in df.columns:
+    id_disponiveis = ["Todos"] + df["ID"].unique().tolist()
+    id_disponiveis = st.sidebar.selectbox("Filtrar por ID", id_disponiveis)
+else:
+    id_disponiveis = "Todos"
+
+# Filtro por nome
+if "Dono da ideia":
+    nomes_disponiveis = ["Todos"] + df["Dono da ideia"].unique().tolist()
+    nomes_disponiveis = st.sidebar.selectbox("Filtrar pot nomes", nomes_disponiveis)
+else:
+    nomes_disponiveis = "Todos"
+
 # Botão para limpar o cache na barra lateral
 if st.sidebar.button("🔄 Limpar Cache e Recarregar Dados"):
     st.cache_data.clear()
