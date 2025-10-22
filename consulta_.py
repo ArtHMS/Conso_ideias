@@ -37,10 +37,10 @@ else:
 
 # Filtro por nome
 if "Dono da ideia":
-    nomes_disponiveis = df["Dono da ideia"].unique().tolist()
-    nomes_disponiveis = st.sidebar.selectbox("Filtrar por nomes", nomes_disponiveis)
+    matriculas_disponiveis = ["Todos"] + df["Matrícula"].unique().tolist()
+    matriculas_disponiveis = st.sidebar.selectbox("Filtrar por matrícula", matriculas_disponiveis)
 else:
-    nomes_disponiveis = "Dono da ideia"
+    matriculas_disponiveis = "Todos"
 
 # Botão para limpar o cache na barra lateral
 if st.sidebar.button("🔄 Limpar Cache e Recarregar Dados"):
