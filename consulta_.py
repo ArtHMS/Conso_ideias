@@ -77,6 +77,19 @@ if not df_filtrado.empty:
                     indice_real = ideia_para_editar_linha.index[0]
                     ideia_para_editar = ideia_para_editar_linha.iloc[0]
 
+                    url_imagem = ideia_para_editar.get("Imagem URL")
+
+                    if url_imagem and url_imagem.strip():
+                        st.image(
+                            url_imagem,
+                            caption=f"Imagem anexada: {ideia_para_editar.get('Nome da ideia')}",
+                            use_container_width=True
+                        )
+                    else:
+                        st.caption("Nenhuma imagem anexada a esta ideia.")
+
+                    st.divider()
+
                     with st.form(f"form_edicao_{id_selecionado}"):
                         # Formulário de edição
                         dados_editados = {}
