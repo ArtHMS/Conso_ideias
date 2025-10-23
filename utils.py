@@ -3,34 +3,84 @@ import pandas as pd
 import gspread
 import pytz
 from google.oauth2.service_account import Credentials
+import io
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
+
+# --- CONFIGURAÇÕES GLOBAIS ---
+DRIVE_FOLDER_ID = "1JO-kxRNkMdeyBTH4zmO2-tMio6wmbGNY"
+
+# Escopos para AMBAS as APIs (Sheets e Drive)
+SCOPES = [
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/drive'
+]
+# =======================================================
 
 # --- CONFIGURAÇÕES GLOBAIS ---
 try:
-    # Define o fuso horário de São Paulo para registar a data e hora corretamente
     fuso_horario_sp = pytz.timezone('America/Sao_Paulo')
 except pytz.UnknownTimeZoneError:
-    # Fallback para UTC caso o fuso horário não seja encontrado
     fuso_horario_sp = pytz.utc
 
 
-# --- FUNÇÕES DE CONEXÃO E DADOS ---
-
-@st.cache_resource(ttl=3600) # Armazena a conexão em cache por 1 hora
-def connect_to_google_sheets():
-    """Conecta-se à Planilha Google e retorna o objeto da aba (worksheet)."""
+# =======================================================
+# --- FUNÇÃO DE CONEXÃO ATUALIZADA ---
+# =======================================================
+@st.cache_resource(ttl=3600)
+def connect_to_google_services():
+    """Conecta-se ao Google Sheets E ao Google Drive."""
     try:
         creds_dict = dict(st.secrets["gcp_service_account"])
-        client = gspread.service_account_from_dict(creds_dict)
-        spreadsheet_url = "https://docs.google.com/spreadsheets/d/1CEu8e_LgTq4NQxm8SWpSsLXYWcGjwJd4YseNUsXm0RQ/edit?usp=sharing"
-        spreadsheet = client.open_by_url(spreadsheet_url)
-        worksheet = spreadsheet.worksheet("Ideias")
-        return worksheet
-    except Exception as e:
-        st.error(f"Falha na conexão com a Planilha Google: {e}")
-        return None
+        # Autoriza com AMBOS os escopos (Sheets e Drive)
+        creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
 
-# Inicia a conexão
-worksheet = connect_to_google_sheets()
+        # 1. Conectar ao Sheets
+        client_sheets = gspread.authorize(creds)
+        spreadsheet_url = "https://docs.google.com/spreadsheets/d/1CEu8e_LgTq4NQxm8SWpSsLXYWcGjwJd4YseNUsXm0RQ/edit?usp=sharing"
+        worksheet = client_sheets.open_by_url(spreadsheet_url).worksheet("Ideias")
+
+        # 2. Conectar ao Drive
+        service_drive = build('drive', 'v3', credentials=creds)
+
+        return worksheet, service_drive
+    except Exception as e:
+        st.error(f"Falha na conexão com os serviços Google: {e}")
+        return None, None
+
+
+# Inicia a conexão e obtém os dois objetos
+worksheet, service_drive = connect_to_google_services()
+
+
+# =======================================================
+# --- NOVA FUNÇÃO PARA UPLOAD NO DRIVE ---
+# =======================================================
+def upload_to_drive(service, file_obj, folder_id):
+    """Faz upload de um objeto de arquivo (do st.file_uploader) para o Google Drive."""
+    if not service:
+        st.error("Serviço do Google Drive não conectado.")
+        return ""
+
+    file_metadata = {
+        'name': file_obj.name,
+        'parents': [folder_id]
+    }
+    # Cria um buffer de bytes para o arquivo
+    media = MediaIoBaseUpload(io.BytesIO(file_obj.getbuffer()),
+                              mimetype=file_obj.type,
+                              resumable=True)
+
+    # Cria o arquivo no Drive
+    file = service.files().create(body=file_metadata,
+                                  media_body=media,
+                                  fields='id, webViewLink').execute()
+
+    # Permissão crucial: Torna o arquivo público (qualquer pessoa com o link pode ver)
+    service.permissions().create(fileId=file.get('id'), body={'type': 'anyone', 'role': 'reader'}).execute()
+
+    # Retorna o link de visualização (que será salvo na planilha)
+    return file.get('webViewLink')
 
 def get_column_order():
     """Retorna a lista de colunas na ordem exata da planilha."""
@@ -39,7 +89,7 @@ def get_column_order():
         "Área", "Local", "BL", "Unidade", "Dono da ideia", "Matrícula",
         "Área do operador", "Turno do operador que deu a ideia", "Data ideia",
         "Metodologia", "Líder", "Equipe", "Status", "Observações", "Data conclusão",
-        "Investimento", "Ganho financeiro", "Link", "Apresentou em alguma rotina?"
+        "Investimento", "Ganho financeiro", "Link", "Apresentou em alguma rotina?", "Imagem URL"
     ]
 
 @st.cache_data(ttl=300) # Armazena os dados em cache por 5 minutos

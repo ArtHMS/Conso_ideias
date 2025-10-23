@@ -119,6 +119,12 @@ if not df_filtrado.empty:
                                 "Metodologia") in metodologia_options else 0
                             dados_editados["Metodologia"] = st.selectbox("Metodologia", metodologia_options, index=metodologia_idx,
                                                                          key=f"edit_metodologia_{id_selecionado}")
+
+                            dados_editados["Imagem URL"] = st.text_input("Link da Imagem",
+                                                                         value=ideia_para_editar.get("Imagem URL", ""),
+                                                                         key=f"edit_img_url_{id_selecionado}")
+
+
                             # Adicionar outros caso necessário
                         if st.form_submit_button("💾 Salvar Alterações"):
                             for col in get_column_order():
