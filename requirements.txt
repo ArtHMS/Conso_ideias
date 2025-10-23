@@ -6,3 +6,5 @@ pytz
 gspread==5.12.4
 google-auth-oauthlib==1.2.0
 google-auth==2.29.0
+google-api-python-client
+google-auth-httplib2
