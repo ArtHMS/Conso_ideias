@@ -15,17 +15,18 @@ from utils import (
 # CORREÇÃO 1: 'st.set_page_config' DEVE ser o primeiro comando Streamlit
 st.set_page_config(layout="centered", page_title="Cadastro de Ideias")
 
-# CORREÇÃO 2: Removido o uploader e título duplicado que estavam aqui
+# CORREÇÃO 2: Removido o uploader de imagem duplicado que estava aqui em cima.
+# Ele só serve como pré-visualização e não funciona com o formulário.
 
 # --- Estilos ---
 hide_streamlit_style = """
-        <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
-        [data-testid="stToolbar"] {visibility: hidden;}
-        </style>
-    """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    [data-testid="stToolbar"] {visibility: hidden;}
+    </style>
+"""
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # --- Título Principal ---
@@ -63,7 +64,7 @@ with st.form("form_ideia", clear_on_submit=True):
     area_aplicacao = st.text_input("🏭 Em qual área ou setor a ideia seria aplicada?")
     local_aplicacao = st.text_input("📍 Em qual local/equipamento específico?")
 
-    # CORREÇÃO 3: Uploader de imagem MOVIDO PARA DENTRO do formulário
+    # CORREÇÃO 3: O uploader de imagem PRECISA estar DENTRO do formulário.
     st.markdown("---")
     st.subheader("4. Anexo (Opcional)")
     # Renomeei a variável para 'imagem_para_enviar' para ficar claro
@@ -84,6 +85,7 @@ if enviar:
             if service_drive:
                 try:
                     with st.spinner("Enviando imagem para o Google Drive..."):
+                        # Chama a função de upload do seu 'utils.py'
                         imagem_url = upload_to_drive(service_drive, imagem_para_enviar, DRIVE_FOLDER_ID)
                 except Exception as e:
                     st.error(f"Falha no upload da imagem: {e}")
