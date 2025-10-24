@@ -77,18 +77,7 @@ if not df_filtrado.empty:
                     indice_real = ideia_para_editar_linha.index[0]
                     ideia_para_editar = ideia_para_editar_linha.iloc[0]
 
-                    url_imagem = ideia_para_editar.get("Imagem URL")
-
-                    if url_imagem and url_imagem.strip():
-                        st.image(
-                            url_imagem,
-                            caption=f"Imagem anexada: {ideia_para_editar.get('Nome da ideia')}",
-                            use_container_width=True
-                        )
-                    else:
-                        st.caption("Nenhuma imagem anexada a esta ideia.")
-
-                    st.divider()
+                    # Bloco de exibição de imagem foi removido daqui
 
                     with st.form(f"form_edicao_{id_selecionado}"):
                         # Formulário de edição
@@ -112,20 +101,17 @@ if not df_filtrado.empty:
                                 "Status") in status_options else 0
                             dados_editados["Status"] = st.selectbox("Status", status_options, index=status_idx,
                                                                     key=f"edit_status_{id_selecionado}")
-                            #Editar metodologia
+                            # Editar metodologia
                             metodologia_options = ["Green Belt", "Kaizen", "PDCA", "Yellow Belt"]
                             metodologia_idx = metodologia_options.index(
                                 ideia_para_editar.get("Metodologia")) if ideia_para_editar.get(
                                 "Metodologia") in metodologia_options else 0
-                            dados_editados["Metodologia"] = st.selectbox("Metodologia", metodologia_options, index=metodologia_idx,
+                            dados_editados["Metodologia"] = st.selectbox("Metodologia", metodologia_options,
+                                                                         index=metodologia_idx,
                                                                          key=f"edit_metodologia_{id_selecionado}")
 
-                            dados_editados["Imagem URL"] = st.text_input("Link da Imagem",
-                                                                         value=ideia_para_editar.get("Imagem URL", ""),
-                                                                         key=f"edit_img_url_{id_selecionado}")
+                            # Campo de edição "Imagem URL" foi removido
 
-
-                            # Adicionar outros caso necessário
                         if st.form_submit_button("💾 Salvar Alterações"):
                             for col in get_column_order():
                                 if col not in dados_editados:
