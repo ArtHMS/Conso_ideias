@@ -30,7 +30,7 @@ def connect_to_google_sheets():
         worksheet = spreadsheet.worksheet("Ideias")
         return worksheet
     except Exception as e:
-        st.error(f"Falha na conexão com a Planilha Google: {e}")
+        st.error(f"Falha na conexão com a Planilha Google: {str(e)}")
         return None
 
 
