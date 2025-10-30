@@ -2,7 +2,17 @@ import streamlit as st
 import pandas as pd
 from utils import carregar_dados, editar_ideia, excluir_ideia, get_column_order
 
-# --- CONFIGURAÇÃO DA PÁGINA ---
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    [data-testid="stToolbar"] {visibility: hidden;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+
 st.set_page_config(layout="wide", page_title="Painel de Ideias")
 
 st.title("💡 Painel de Consulta de Ideias")
@@ -11,7 +21,7 @@ st.write("Use os filtros na barra lateral para encontrar ideias específicas.")
 # Carrega todos os dados uma vez
 df = carregar_dados()
 
-# --- BARRA LATERAL (SIDEBAR) ---
+# sidebar
 st.sidebar.header("🔍 Filtros do Painel")
 
 # Filtro por Status
@@ -92,7 +102,7 @@ if not df_filtrado.empty:
                                                                             value=ideia_para_editar.get("Dono da ideia",
                                                                                                         ""),
                                                                             key=f"edit_dono_{id_selecionado}")
-                            # Adicione outros campos de edição aqui...
+                            # Campos de edição (caso precise, pode adicionar novos dependendo da necessidade do time PEP)
                         with c2:
                             status_options = ["Nova", "Em análise", "Aprovada", "Em implementação", "Concluída",
                                               "Rejeitada"]
@@ -109,17 +119,6 @@ if not df_filtrado.empty:
                             dados_editados["Metodologia"] = st.selectbox("Metodologia", metodologia_options,
                                                                          index=metodologia_idx,
                                                                          key=f"edit_metodologia_{id_selecionado}")
-
-                            # Campo de edição "Imagem URL" foi removido
-
-                        if st.form_submit_button("💾 Salvar Alterações"):
-                            for col in get_column_order():
-                                if col not in dados_editados:
-                                    dados_editados[col] = ideia_para_editar.get(col)
-
-                            editar_ideia(indice_real, dados_editados)
-                            st.success("✅ Ideia atualizada com sucesso!")
-                            st.rerun()
 
     with col_delete:
         st.subheader("🗑️ Excluir Ideia")

@@ -4,20 +4,17 @@ import gspread
 import pytz
 from google.oauth2.service_account import Credentials
 
-# --- CONFIGURAÇÕES GLOBAIS ---
 try:
-    # Define o fuso horário de São Paulo
     fuso_horario_sp = pytz.timezone('America/Sao_Paulo')
 except pytz.UnknownTimeZoneError:
     fuso_horario_sp = pytz.utc
 
 
-# --- FUNÇÕES DE CONEXÃO E DADOS ---
 
 # Esta é a função de conexão original, apenas para o Google Sheets
 @st.cache_resource(ttl=3600)
 def connect_to_google_sheets():
-    """Conecta-se à Planilha Google e retorna o objeto da aba (worksheet)."""
+    """Conecta à Planilha Google e retorna o objeto da aba"""
     try:
         creds_dict = dict(st.secrets["gcp_service_account"])
         # Escopo apenas para o Sheets
@@ -38,7 +35,7 @@ def connect_to_google_sheets():
 worksheet = connect_to_google_sheets()
 
 
-# Lista de colunas revertida (sem "Imagem URL")
+# Lista de colunas revertida
 def get_column_order():
     """Retorna a lista de colunas na ordem exata da planilha."""
     return [
@@ -47,7 +44,7 @@ def get_column_order():
         "Área do operador", "Turno do operador que deu a ideia", "Data ideia",
         "Metodologia", "Líder", "Equipe", "Status", "Observações", "Data conclusão",
         "Investimento", "Ganho financeiro", "Link", "Apresentou em alguma rotina?"
-    ]  # 23 colunas
+    ]
 
 
 @st.cache_data(ttl=300)
@@ -65,7 +62,7 @@ def carregar_dados():
 
 
 def salvar_ideia(nova_ideia):
-    """Salva uma nova ideia na planilha e limpa o cache de dados."""
+    """Salva uma nova ideia na planilha."""
     if worksheet:
         colunas_ordenadas = get_column_order()
         dados_para_adicionar = [nova_ideia.get(col, "") for col in colunas_ordenadas]

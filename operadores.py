@@ -56,7 +56,6 @@ with st.form("form_ideia", clear_on_submit=True):
     area_aplicacao = st.text_input("🏭 Em qual área ou setor a ideia seria aplicada?")
     local_aplicacao = st.text_input("📍 Em qual local/equipamento específico?")
 
-    # Campo de upload de imagem foi removido
 
     enviar = st.form_submit_button("🚀 Enviar Minha Ideia")
 
@@ -65,14 +64,13 @@ if enviar:
                            descricao_da_solucao]
     if all(campos_obrigatorios):
 
-        # Lógica de upload de imagem foi removida
 
         df_existente = carregar_dados()
         novo_id = (pd.to_numeric(df_existente['ID'],
                                  errors='coerce').max() + 1) if not df_existente.empty and 'ID' in df_existente else 1
         data_ideia = datetime.now(fuso_horario_sp).strftime("%d/%m/%Y")
 
-        # Dicionário da nova ideia (sem "Imagem URL")
+        # Dicionário da nova ideia
         nova_ideia = {
             "ID": int(novo_id), "Nome da ideia": nome_da_ideia, "Descrição da solução": descricao_da_solucao,
             "Descrição de problema": descricao_de_problema, "Área": area_aplicacao, "Local": local_aplicacao,
